@@ -1,9 +1,9 @@
 wandb:
-  name: "######"
-  dir: "######/temp_file/wandb"
-  entity: "######"
+  name: "jianzhirong"
+  dir: "/home/levin/workspace/nerf/RoMe/outputs/"
+  entity: "jianzhirong"
   tags: []
-  project: "######"
+  project: "Rome"
 
 # when on cluster, no wandb logs
 cluster: False
@@ -47,8 +47,8 @@ num_workers: 8
 
 dataset: "NuscDataset"
 version: "mini" 
-base_dir: "######/Nuscenes"
-image_dir: "######/nuScenes/"
+base_dir: "/media/levin/DATA/zf/workspace/data/nuscene/v1.0-mini/"
+image_dir: "/media/levin/DATA/zf/workspace/data/nuscene/nuScenes_clip/"
 eval: False
 
 clip_list:
@@ -68,8 +68,8 @@ image_height: 450
 
 camera_names:
   - "CAM_FRONT"
-  - "CAM_FRONT_LEFT"
-  - "CAM_FRONT_RIGHT"
-  - "CAM_BACK"
-  - "CAM_BACK_LEFT"
-  - "CAM_BACK_RIGHT"
+  # - "CAM_FRONT_LEFT"
+  # - "CAM_FRONT_RIGHT"
+  # - "CAM_BACK"
+  # - "CAM_BACK_LEFT"
+  # - "CAM_BACK_RIGHT"

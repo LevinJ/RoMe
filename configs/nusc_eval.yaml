@@ -1,17 +1,17 @@
 wandb:
-  name: "######"
-  dir: "######/temp_file/wandb"
-  entity: "######"
+  name: "jianzhirong"
+  dir: "/home/levin/workspace/nerf/RoMe/outputs/"
+  entity: "jianzhirong"
   tags: []
-  project: "######"
+  project: "Rome"
 
 # when on cluster, no wandb logs
 cluster: False
 replace_name: False
 
 # 05
-model_path: "######/temp_file/wandb/wandb/run-20230712_163549-1xh5hwjo/files/grid_baseline.pt"
-pose_path: "######/temp_file/wandb/wandb/run-20230712_163549-1xh5hwjo/files/pose_baseline.pt"
+model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231116_155155-tfluyjb9/files/grid_baseline.pt"
+pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231116_155155-tfluyjb9/files/pose_baseline.pt"
 
 # BEV size
 bev_x_length: 100
@@ -19,7 +19,7 @@ bev_y_length: 100
 bev_resolution: 0.1  # meters
 bev_x_pixel: 1000
 bev_y_pixel: 1000
-cut_range: 7
+cut_range: 8
 
 # Training Parameters
 waypoint_radius: 120  # meters
@@ -46,8 +46,8 @@ num_workers: 2
 
 dataset: "NuscDataset"
 version: "mini" 
-base_dir: "######/Nuscenes"
-image_dir: "######/nuScenes/"
+base_dir: "/media/levin/DATA/zf/workspace/data/nuscene/v1.0-mini/"
+image_dir: "/media/levin/DATA/zf/workspace/data/nuscene/nuScenes_clip/"
 
 clip_list:
 - "scene-0655"
@@ -65,8 +65,8 @@ image_height: 450
 
 camera_names:
   - "CAM_FRONT"
-  - "CAM_FRONT_LEFT"
-  - "CAM_FRONT_RIGHT"
-  - "CAM_BACK"
-  - "CAM_BACK_LEFT"
-  - "CAM_BACK_RIGHT"
+  # - "CAM_FRONT_LEFT"
+  # - "CAM_FRONT_RIGHT"
+  # - "CAM_BACK"
+  # - "CAM_BACK_LEFT"
+  # - "CAM_BACK_RIGHT"

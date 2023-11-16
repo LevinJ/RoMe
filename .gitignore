@@ -1,6 +1,7 @@
 tmp
-.vscode
 __pycache__
 *.pyc
 /wandb
 ./configs/*
+outputs/
+eval/

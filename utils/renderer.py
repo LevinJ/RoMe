@@ -77,11 +77,13 @@ class Renderer(nn.Module):
             image_size=(int(image_size[0]), int(image_size[1])),
             blur_radius=0.0,
             faces_per_pixel=1,
+            max_faces_per_bin=int(max(10000, self.mesh._F / 2))
         )
 
     def forward(self, input):
         mesh = input["mesh"]
         cameras = input["cameras"]
+        self.mesh = mesh
         if self.raster_settings is None:
             self.set_rasterization(cameras)
 
