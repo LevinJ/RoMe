@@ -10,15 +10,15 @@ cluster: False
 replace_name: False
 
 # 05
-model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231116_155155-tfluyjb9/files/grid_baseline.pt"
-pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231116_155155-tfluyjb9/files/pose_baseline.pt"
+model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231120_111551-lq96yilb/files/grid_baseline.pt"
+pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231120_111551-lq96yilb/files/pose_baseline.pt"
 
 # BEV size
-bev_x_length: 100
-bev_y_length: 100
+bev_x_length: 200
+bev_y_length: 200
 bev_resolution: 0.1  # meters
-bev_x_pixel: 1000
-bev_y_pixel: 1000
+bev_x_pixel: 2000
+bev_y_pixel: 2000
 cut_range: 8
 
 # Training Parameters

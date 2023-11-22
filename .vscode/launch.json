@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "scripts/train.py",
             "console": "integratedTerminal",
-            "justMyCode": false,
+            "justMyCode": true,
             "cwd": "${workspaceFolder}",
             "args": ["--config", "configs/local_nusc_mini.yaml"],
             "env": {"PYTHONPATH": "${workspaceFolder}"}

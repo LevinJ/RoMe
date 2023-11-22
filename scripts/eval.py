@@ -106,8 +106,8 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
 
                 images = (images * 255).astype(np.uint8)[:, :, ::-1]
                 gt_image = (gt_image * 255).astype(np.uint8)[:, :, ::-1]
-                cv2.imwrite(f"./eval/eval_{cnt}-render.png", images)
-                cv2.imwrite(f"./eval/eval_{cnt}-gt.png", gt_image)
+                cv2.imwrite(f"./eval/eval_{cnt:05d}-render.png", images)
+                cv2.imwrite(f"./eval/eval_{cnt:05d}-gt.png", gt_image)
 
                 # save seg numpy array
                 mask = mask.detach().cpu().numpy().squeeze(3).astype(np.uint8)
@@ -115,9 +115,9 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
                 images_seg_np = np.argmax(images_seg_np, axis=-1)
 
                 vis_seg = render_semantic(images_seg_np[0], dataset.filted_color_map)[:, :, ::-1]
-                cv2.imwrite(f"./eval/eval_{cnt}-vis_seg.png", vis_seg)
+                cv2.imwrite(f"./eval/eval_{cnt:05d}-vis_seg.png", vis_seg)
                 blend_image = cv2.addWeighted(gt_image, 0.5, vis_seg, 0.5, 0)
-                cv2.imwrite(f"./eval/eval_{cnt}-blend.png", blend_image)
+                cv2.imwrite(f"./eval/eval_{cnt:05d}-blend.png", blend_image)
 
                 images_seg_np[images_seg_np == num_class - 1] = 255
                 images_seg_np[images_seg_np == 0] = 255
@@ -128,7 +128,7 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
                 gt_seg_np = gt_seg.detach().cpu().numpy()
                 gt_seg_np *= mask
                 vis_gt_seg = render_semantic(gt_seg_np[0], dataset.filted_color_map)[:, :, ::-1]
-                cv2.imwrite(f"./eval/eval_{cnt}-vis_gt_seg.png", vis_gt_seg)
+                cv2.imwrite(f"./eval/eval_{cnt:05d}-vis_gt_seg.png", vis_gt_seg)
                 gt_seg_np[gt_seg_np == num_class - 1] = 255
                 gt_seg_np[gt_seg_np == 0] = 255
                 gt_seg_np -= 1
