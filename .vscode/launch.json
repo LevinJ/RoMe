@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "train_nuscene",
             "type": "python",
             "request": "launch",
@@ -12,10 +23,14 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "cwd": "${workspaceFolder}",
-            "args": ["--config", "configs/local_nusc_mini.yaml"],
-            "env": {"PYTHONPATH": "${workspaceFolder}"}
+            "args": [
+                "--config",
+                "configs/local_nusc_mini.yaml"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         },
-
         {
             "name": "eval",
             "type": "python",
@@ -24,8 +39,13 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "cwd": "${workspaceFolder}",
-            "args": ["--config", "configs/nusc_eval.yaml"],
-            "env": {"PYTHONPATH": "${workspaceFolder}"}
+            "args": [
+                "--config",
+                "configs/nusc_eval.yaml"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ]
 }
