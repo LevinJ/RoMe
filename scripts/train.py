@@ -1,25 +1,27 @@
 import argparse
-import yaml
-from tqdm import tqdm
+import os
 import random
+from os.path import join
 
+import cv2
 import numpy as np
 import torch
-import os
-import cv2
-from os.path import join
+import yaml
+from pytorch3d.loss import mesh_laplacian_smoothing
+from pytorch3d.renderer import PerspectiveCameras
 from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.data import DataLoader
-from pytorch3d.renderer import PerspectiveCameras
-from models.loss import L1MaskedLoss, CELossWithMask
-from utils.geometry import fps_by_distance
-from utils.renderer import Renderer
-from utils.visualizer import Visualizer, loss2color, depth2color, save_cut_mesh, save_cut_label_mesh
-from utils.wandb_loggers import WandbLogger
-from utils.image import render_semantic
-from models.pose_model import ExtrinsicModel
-from pytorch3d.loss import mesh_laplacian_smoothing
+from tqdm import tqdm
+
 from eval import eval
+from models.loss import CELossWithMask, L1MaskedLoss
+from models.pose_model import ExtrinsicModel
+from utils.geometry import fps_by_distance
+from utils.image import render_semantic
+from utils.renderer import Renderer
+from utils.visualizer import (Visualizer, depth2color, loss2color,
+                              save_cut_label_mesh, save_cut_mesh)
+from utils.wandb_loggers import WandbLogger
 
 
 def set_randomness(args):
@@ -52,6 +54,8 @@ def train(configs):
         from datasets.nusc import NuscDataset as Dataset
     elif configs["dataset"] == "KittiDataset":
         from datasets.kitti import KittiDataset as Dataset
+    elif configs["dataset"] == "NerfStudio":
+        from datasets.nerfstudio import NerfStudio as Dataset
     else:
         raise NotImplementedError("Dataset not implemented")
 

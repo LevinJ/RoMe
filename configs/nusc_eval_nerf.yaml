@@ -10,8 +10,8 @@ cluster: False
 replace_name: False
 
 # 05
-model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_131722-z4iztf56/files/grid_baseline.pt"
-pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_131722-z4iztf56/files/pose_baseline.pt"
+model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_111231-2xotnaki/files/grid_baseline.pt"
+pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_111231-2xotnaki/files/pose_baseline.pt"
 
 # BEV size
 bev_x_length: 200
@@ -44,7 +44,7 @@ epochs: 1
 num_workers: 2
 
 
-dataset: "NuscDataset"
+dataset: "NerfStudio"
 version: "mini" 
 base_dir: "/media/levin/DATA/zf/workspace/data/nuscene/v1.0-mini/"
 image_dir: "/media/levin/DATA/zf/workspace/data/nuscene/nuScenes_clip/"

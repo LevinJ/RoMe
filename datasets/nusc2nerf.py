@@ -50,12 +50,18 @@ class App(object):
                                           inverse=False)
         return chassis2global
     def reset_temp_var(self):
-        # self.camera_extrinsics = []
+        self.camera_height = []
+        self.camera2frontcamera = []
+
         self.image_filenames_all = []
         self.label_filenames_all=[]
         self.cameras_K_all=[]
         self.cameras_idx_all=[]
         self.ref_camera2world_all=[]
+
+        self.cameras_name_all=[]
+        self.scene_name_all=[]
+
         return
     def extract_dataset(self):
         version = "mini" 
@@ -88,6 +94,7 @@ class App(object):
                     # compute camera key frame poses
                     rec_token = rec["data"][cam]
                     samp = self.nusc.get("sample_data", rec_token)
+                    # camera2chassis = self.compute_extrinsic2chassis(samp)
                     flag = True
                     # compute first key frame and framse between first frame and second frame
                     while flag or not samp["is_key_frame"]:
@@ -95,6 +102,16 @@ class App(object):
                         rel_camera_path = samp["filename"]
                         if True:
                             camera2chassis = self.compute_extrinsic2chassis(samp)
+                            if cam == "CAM_FRONT":
+                                camera_front2_camera_ref = np.eye(4)
+                                camera_ref2_camera_front = np.eye(4)
+                                self.camera_height.append(camera2chassis[2, 3])
+                            else:
+                                rec_token_front = rec["data"]["CAM_FRONT"]
+                                samp_front = self.nusc.get("sample_data", rec_token_front)
+                                camera_front2_camera_ref = self.compute_extrinsic(samp_front, samp)
+                                camera_ref2_camera_front = np.linalg.inv(camera_front2_camera_ref)
+                            self.camera2frontcamera.append(camera_ref2_camera_front.astype(np.float32))
                             # 1. label path
                             rel_label_path = rel_camera_path.replace("/CAM", "/seg_CAM")
                             rel_label_path = rel_label_path.replace(".jpg", ".png")
@@ -119,13 +136,15 @@ class App(object):
 
                             # 5. camera index
                             self.cameras_idx_all.append(camera_idx)
+                            self.cameras_name_all.append(cam)
+                            self.scene_name_all.append(scene_name)
                         # not key frames
                         if samp["next"] != "":
                             samp = self.nusc.get('sample_data', samp["next"])
                         else:
                             break
-            json_path = f"{self.base_dir}/{scene_name}/transforms.json"
-            self.save_nerf_studio(json_path)
+        json_path = f"{self.base_dir}transforms.json"
+        self.save_nerf_studio(json_path)
         return
     def save_nerf_studio(self, json_path):
         meta_data = {"k1": 0,
@@ -147,6 +166,11 @@ class App(object):
             frame['label_path'] = self.label_filenames_all[idx]
             frame['transform_matrix'] = self.ref_camera2world_all[idx].tolist()
             frame['camera_id'] = self.cameras_idx_all[idx]
+            frame['camera_name'] = self.cameras_name_all[idx]
+            frame['scene_name'] = self.scene_name_all[idx]
+            frame['camera2frontcamera'] =  self.camera2frontcamera [idx].tolist()
+            if frame['camera_name'] == "CAM_FRONT":
+                frame['camera_height'] = self.camera_height[idx]
 
 
             K = self.cameras_K_all[idx]

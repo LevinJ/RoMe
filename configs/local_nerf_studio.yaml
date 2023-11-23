@@ -9,10 +9,6 @@ wandb:
 cluster: False
 replace_name: False
 
-# 05
-model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_131722-z4iztf56/files/grid_baseline.pt"
-pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_131722-z4iztf56/files/pose_baseline.pt"
-
 # BEV size
 bev_x_length: 200
 bev_y_length: 200
@@ -23,7 +19,7 @@ cut_range: 8
 
 # Training Parameters
 waypoint_radius: 120  # meters
-batch_size: 1
+batch_size: 4
 pos_enc: 5
 lr: 
   vertices_rgb: 0.1
@@ -32,22 +28,28 @@ lr:
   rotations: 0.01
   translations: 0.01
 
+extrinsic:  # extrinsic optimization range
+  rotation_deg: 0.5
+  translation_m: 0.5
+  start_epoch: 0
+
 lr_milestones: [1, 4]
 lr_gamma: 0.1
-seg_loss_weight: 1
+seg_loss_weight: 0.06
 normal_loss_weight: 0
 laplacian_loss_weight: 10
 rand_seed: 17
-epochs: 1
+epochs: 7
 
 # Performance Parameters
-num_workers: 2
+num_workers: 8
 
 
-dataset: "NuscDataset"
+dataset: "NerfStudio"
 version: "mini" 
 base_dir: "/media/levin/DATA/zf/workspace/data/nuscene/v1.0-mini/"
 image_dir: "/media/levin/DATA/zf/workspace/data/nuscene/nuScenes_clip/"
+eval: False
 
 clip_list:
 - "scene-0655"
@@ -55,6 +57,7 @@ clip_list:
 center_point:
   x: 0.0
   y: 0.0
+
 
 # minimum distance between frame to sample the dataset
 min_distance: 0.2

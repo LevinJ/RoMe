@@ -1,17 +1,18 @@
-import cv2
 import argparse
-import yaml
-from tqdm import tqdm
 
+import cv2
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
+import yaml
 from pytorch3d.renderer import PerspectiveCameras
-from utils.renderer import Renderer
-from utils.geometry import fps_by_distance
-from utils.metrics import eval_metrics
-from utils.image import render_semantic
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
 from models.loss import MESMaskedLoss
+from utils.geometry import fps_by_distance
+from utils.image import render_semantic
+from utils.metrics import eval_metrics
+from utils.renderer import Renderer
 
 
 def mse2psnr(mse):
@@ -176,6 +177,8 @@ if __name__ == "__main__":
         from datasets.nusc import NuscDataset as Dataset
     elif configs["dataset"] == "KittiDataset":
         from datasets.kitti import KittiDataset as Dataset
+    elif configs["dataset"] == "NerfStudio":
+        from datasets.nerfstudio import NerfStudio as Dataset
     else:
         raise NotImplementedError("Dataset not implemented")
 

@@ -16,6 +16,22 @@
             }
         },
         {
+            "name": "train_nerfstudio",
+            "type": "python",
+            "request": "launch",
+            "program": "scripts/train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--config",
+                "configs/local_nerf_studio.yaml"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "train_nuscene",
             "type": "python",
             "request": "launch",
@@ -31,6 +47,22 @@
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
+        {
+            "name": "eval_nerf",
+            "type": "python",
+            "request": "launch",
+            "program": "scripts/eval.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--config",
+                "configs/nusc_eval_nerf.yaml"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
         {
             "name": "eval",
             "type": "python",
