@@ -10,8 +10,8 @@ cluster: False
 replace_name: False
 
 # 05
-model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_111231-2xotnaki/files/grid_baseline.pt"
-pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_111231-2xotnaki/files/pose_baseline.pt"
+model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_164308-4eb4bu4c/files/grid_baseline.pt"
+pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231123_164308-4eb4bu4c/files/pose_baseline.pt"
 
 # BEV size
 bev_x_length: 200

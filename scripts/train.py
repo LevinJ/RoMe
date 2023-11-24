@@ -59,11 +59,12 @@ def train(configs):
     else:
         raise NotImplementedError("Dataset not implemented")
 
-    logger = WandbLogger(configs)
+    
     visualizer = Visualizer(device, configs)
     renderer = Renderer().to(device)
     dataset = Dataset(configs)
     supervise_depth_list = ["FsdDataset", "CarlaDataset"]
+    logger = WandbLogger(configs)
     # supervise_depth_list = ["CarlaDataset"]
 
     pose_xy = np.array(dataset.ref_camera2world_all)[:, :2, 3]

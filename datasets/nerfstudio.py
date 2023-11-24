@@ -15,6 +15,7 @@ import numpy as np
 from datasets.base import BaseDataset
 from datasets.nusc import NuscDataset
 from utils.plane_fit import robust_estimate_flatplane
+from utils.pose_util import get_Tgl2cv
 
 
 def load_from_json(filename: Path):
@@ -30,12 +31,6 @@ class NerfStudio(NuscDataset):
     def __init__(self, configs):
         BaseDataset.__init__(self)
 
-        # self.nusc = NuScenes(version="v1.0-{}".format(configs["version"]),
-        #                      dataroot=configs["base_dir"],
-        #                      verbose=True)
-        # self.version = configs["version"]
-        # self.replace_name = configs["replace_name"]
-        # super().__init__()
         self.resized_image_size = (configs["image_width"], configs["image_height"])
         self.base_dir = configs["base_dir"]
         self.image_dir = configs["image_dir"]
@@ -67,10 +62,7 @@ class NerfStudio(NuscDataset):
         height = []
         width = []
         self.camera_heights = []
-        # fx = float(meta["fl_x"])
-        # fy = float(meta["fl_y"])
-        # cx = float(meta["cx"])
-        # cy = float(meta["cy"])
+  
         for idx,frame in enumerate(meta["frames"]):
             if not frame['scene_name'] in clip_list:
                 continue
@@ -101,14 +93,16 @@ class NerfStudio(NuscDataset):
                 width.append(int(frame["w"]))
             intrinsic = np.asarray([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
             
-            camera2world = np.array(frame["transform_matrix"]).astype(np.float32)
+            glcamera2world = np.array(frame["transform_matrix"]).astype(np.float32)
+
+            camera2world = glcamera2world @ get_Tgl2cv(inv=True).astype(np.float32)
             camera2camerafront = np.array(frame['camera2frontcamera']).astype(np.float32)
             camerafront2world = camera2world @ np.linalg.inv(camera2camerafront)
 
             self.camera_extrinsics.append(camera2camerafront)
             self.ref_camera2world_all.append(camerafront2world)
             
-            self.cameras_idx_all.append(idx)
+            self.cameras_idx_all.append(frame['camera_id'])
             self.cameras_K_all.append(intrinsic.astype(np.float32))
 
             self.label_filenames_all.append(label_filepath.split(self.image_dir)[-1])
@@ -117,78 +111,6 @@ class NerfStudio(NuscDataset):
 
             if 'camera_height' in frame:
                 self.camera_heights.append(frame['camera_height'])
-
-        # # start loading all filename and poses
-        # samples = [samp for samp in self.nusc.sample]
-        # lidar_height = []
-        # lidar2world_all = []
-        # for scene_name in tqdm(clip_list, desc="Loading data clips"):
-        #     records = [samp for samp in samples if
-        #                self.nusc.get("scene", samp["scene_token"])["name"] in scene_name]
-        #     # sort by timestamp (only to make chronological viz easier)
-        #     records.sort(key=lambda x: (x['timestamp']))
-
-        #     # interpolate images from 2HZ to 12 HZ
-        #     for index in range(len(records)):
-        #         rec = records[index]
-        #         # comput lidar key frame poses
-        #         rec_token = rec["data"]["LIDAR_TOP"]
-        #         samp = self.nusc.get("sample_data", rec_token)
-        #         lidar2chassis = self.compute_extrinsic2chassis(samp)
-        #         chassis2world = self.compute_chassis2world(samp)
-        #         lidar2world = chassis2world @ lidar2chassis
-        #         lidar2world_all.append(lidar2world)
-        #         lidar_height.append(lidar2chassis[2, 3])
-        #         for camera_idx, cam in enumerate(camera_names):
-        #             # compute camera key frame poses
-        #             rec_token = rec["data"][cam]
-        #             samp = self.nusc.get("sample_data", rec_token)
-        #             camera2chassis = self.compute_extrinsic2chassis(samp)
-        #             if cam == "CAM_FRONT":
-        #                 camera_front2_camera_ref = np.eye(4)
-        #                 camera_ref2_camera_front = np.eye(4)
-        #             else:
-        #                 rec_token_front = rec["data"]["CAM_FRONT"]
-        #                 samp_front = self.nusc.get("sample_data", rec_token_front)
-        #                 camera_front2_camera_ref = self.compute_extrinsic(samp_front, samp)
-        #                 camera_ref2_camera_front = np.linalg.inv(camera_front2_camera_ref)
-        #             self.camera_extrinsics.append(camera_ref2_camera_front.astype(np.float32))
-        #             flag = True
-        #             # compute first key frame and framse between first frame and second frame
-        #             while flag or not samp["is_key_frame"]:
-        #                 flag = False
-        #                 rel_camera_path = samp["filename"]
-        #                 if True:
-        #                     camera2chassis = self.compute_extrinsic2chassis(samp)
-        #                     # 1. label path
-        #                     rel_label_path = rel_camera_path.replace("/CAM", "/seg_CAM")
-        #                     rel_label_path = rel_label_path.replace(".jpg", ".png")
-        #                     if self.replace_name:
-        #                         rel_label_path = rel_label_path.replace("+", "_")
-        #                     self.label_filenames_all.append(rel_label_path)
-
-        #                     # 2. camera path
-        #                     self.image_filenames_all.append(rel_camera_path)
-
-        #                     # 3. camera2world
-        #                     chassis2world = self.compute_chassis2world(samp)
-
-        #                     ref_camera2world = chassis2world @ camera2chassis @ camera_front2_camera_ref
-
-        #                     self.ref_camera2world_all.append(ref_camera2world.astype(np.float32))
-
-        #                     # 4.camera intrinsic
-        #                     calibrated_sensor = self.nusc.get("calibrated_sensor", samp["calibrated_sensor_token"])
-        #                     intrinsic = np.array(calibrated_sensor["camera_intrinsic"])
-        #                     self.cameras_K_all.append(intrinsic.astype(np.float32))
-
-        #                     # 5. camera index
-        #                     self.cameras_idx_all.append(camera_idx)
-        #                 # not key frames
-        #                 if samp["next"] != "":
-        #                     samp = self.nusc.get('sample_data', samp["next"])
-        #                 else:
-        #                     break
 
         # 6. estimate flat plane
         self.file_check()

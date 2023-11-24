@@ -22,6 +22,7 @@ from tqdm import tqdm
 
 from datasets.base import BaseDataset
 from utils.plane_fit import robust_estimate_flatplane
+from utils.pose_util import get_Tgl2cv
 
 
 class App(object):
@@ -125,7 +126,7 @@ class App(object):
                             # 3. camera2world
                             chassis2world = self.compute_chassis2world(samp)
 
-                            ref_camera2world = chassis2world @ camera2chassis
+                            ref_camera2world = chassis2world @ camera2chassis @ get_Tgl2cv()
 
                             self.ref_camera2world_all.append(ref_camera2world.astype(np.float32))
 
@@ -151,6 +152,8 @@ class App(object):
                     "k2": 0,
                     "p1": 0,
                     "p2": 0,
+                    'h': 0,
+                    'w': 0,
                     "aabb_scale": 16,
                     "frames":[],}
         
