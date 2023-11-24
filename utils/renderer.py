@@ -1,9 +1,6 @@
 import torch
+from pytorch3d.renderer import MeshRasterizer, RasterizationSettings
 from torch import nn
-from pytorch3d.renderer import (
-    RasterizationSettings,
-    MeshRasterizer,
-)
 
 
 def hard_channel_blend(
@@ -77,7 +74,7 @@ class Renderer(nn.Module):
             image_size=(int(image_size[0]), int(image_size[1])),
             blur_radius=0.0,
             faces_per_pixel=1,
-            max_faces_per_bin=int(max(10000, self.mesh._F / 2))
+            max_faces_per_bin=int(max(10000, self.mesh._F / 1))
         )
 
     def forward(self, input):

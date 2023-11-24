@@ -62,7 +62,8 @@ class NerfStudio(NuscDataset):
         height = []
         width = []
         self.camera_heights = []
-  
+
+        added_cameras = []
         for idx,frame in enumerate(meta["frames"]):
             if not frame['scene_name'] in clip_list:
                 continue
@@ -99,7 +100,9 @@ class NerfStudio(NuscDataset):
             camera2camerafront = np.array(frame['camera2frontcamera']).astype(np.float32)
             camerafront2world = camera2world @ np.linalg.inv(camera2camerafront)
 
-            self.camera_extrinsics.append(camera2camerafront)
+            if not frame['camera_id'] in added_cameras:
+                self.camera_extrinsics.append(camera2camerafront)
+                added_cameras.append(frame['camera_id'] )
             self.ref_camera2world_all.append(camerafront2world)
             
             self.cameras_idx_all.append(frame['camera_id'])

@@ -73,7 +73,7 @@ class App(object):
                              verbose=True)
         
         clip_list = ["scene-0655"]
-        camera_names = ["CAM_FRONT"]
+        camera_names = ["CAM_FRONT", "CAM_BACK", "CAM_FRONT_LEFT", "CAM_FRONT_RIGHT", "CAM_BACK_LEFT", "CAM_BACK_RIGHT"]
         self.replace_name = False
 
         
@@ -162,7 +162,7 @@ class App(object):
         meta_data['h'], meta_data['w']= sample_img.shape[:2] 
         os.makedirs(os.path.dirname(json_path), exist_ok=True)
 
-
+        height_id = 0
         for idx, img in enumerate(self.image_filenames_all):
             frame = {}
             frame['file_path'] = img
@@ -173,7 +173,8 @@ class App(object):
             frame['scene_name'] = self.scene_name_all[idx]
             frame['camera2frontcamera'] =  self.camera2frontcamera [idx].tolist()
             if frame['camera_name'] == "CAM_FRONT":
-                frame['camera_height'] = self.camera_height[idx]
+                frame['camera_height'] = self.camera_height[height_id]
+                height_id += 1
 
 
             K = self.cameras_K_all[idx]

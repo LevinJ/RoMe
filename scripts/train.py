@@ -116,7 +116,7 @@ def train(configs):
         else:
             z_parameters.append({"params": param, "lr": float(configs["lr"]["vertices_z"])})
 
-    poses = ExtrinsicModel(configs, optim_dict["rotations"], optim_dict["translations"], num_camera=len(dataset.camera_extrinsics)).to(device)
+    poses = ExtrinsicModel(configs, optim_dict["rotations"], optim_dict["translations"], num_camera=np.unique(dataset.cameras_idx_all).size).to(device)
     for param_key, param in poses.named_parameters():
         pose_parameters.append({"params": param, "lr": float(configs["lr"][param_key])})
 
