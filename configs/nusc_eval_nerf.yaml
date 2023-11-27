@@ -10,8 +10,8 @@ cluster: False
 replace_name: False
 
 # 05
-model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231124_144934-xdf3fmpc/files/grid_baseline.pt"
-pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231124_144934-xdf3fmpc/files/pose_baseline.pt"
+model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231124_161827-4fdono4h/files/grid_baseline.pt"
+pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231124_161827-4fdono4h/files/pose_baseline.pt"
 
 # BEV size
 bev_x_length: 200
@@ -65,8 +65,8 @@ image_height: 450
 
 camera_names:
   - "CAM_FRONT"
-  # - "CAM_FRONT_LEFT"
-  # - "CAM_FRONT_RIGHT"
+  - "CAM_FRONT_LEFT"
+  - "CAM_FRONT_RIGHT"
   - "CAM_BACK"
-  # - "CAM_BACK_LEFT"
-  # - "CAM_BACK_RIGHT"
+  - "CAM_BACK_LEFT"
+  - "CAM_BACK_RIGHT"
