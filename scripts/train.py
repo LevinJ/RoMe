@@ -19,8 +19,13 @@ from models.pose_model import ExtrinsicModel
 from utils.geometry import fps_by_distance
 from utils.image import render_semantic
 from utils.renderer import Renderer
-from utils.visualizer import (Visualizer, depth2color, loss2color,
-                              save_cut_label_mesh, save_cut_mesh)
+from utils.visualizer import (
+    Visualizer,
+    depth2color,
+    loss2color,
+    save_cut_label_mesh,
+    save_cut_mesh,
+)
 from utils.wandb_loggers import WandbLogger
 
 
@@ -66,8 +71,10 @@ def train(configs):
     supervise_depth_list = ["FsdDataset", "CarlaDataset"]
     logger = WandbLogger(configs)
     # supervise_depth_list = ["CarlaDataset"]
-
+    
     pose_xy = np.array(dataset.ref_camera2world_all)[:, :2, 3]
+    if hasattr(dataset, 'camerafront2world'):
+        pose_xy = np.array(dataset.camerafront2world)[:, :2, 3]
     offset_pose_xy = pose_xy - np.asarray([configs["center_point"]["x"], configs["center_point"]["y"]])
     print(f"Get {len(dataset.ref_camera2world_all)} images for mapping")
 

@@ -7,9 +7,11 @@
 
 """
 import json
+from copy import deepcopy
 from os.path import join
 from pathlib import Path
 
+import cv2
 import numpy as np
 
 from datasets.base import BaseDataset
@@ -58,10 +60,10 @@ class NerfStudio(NuscDataset):
             if distort_key in meta:
                 distort_fixed = True
                 break
-        self.camera_extrinsics = []
         height = []
         width = []
         self.camera_heights = []
+        self.camerafront2world = []
 
         added_cameras = []
         for idx,frame in enumerate(meta["frames"]):
@@ -97,13 +99,10 @@ class NerfStudio(NuscDataset):
             glcamera2world = np.array(frame["transform_matrix"]).astype(np.float32)
 
             camera2world = glcamera2world @ get_Tgl2cv(inv=True).astype(np.float32)
-            camera2camerafront = np.array(frame['camera2frontcamera']).astype(np.float32)
-            camerafront2world = camera2world @ np.linalg.inv(camera2camerafront)
 
             if not frame['camera_id'] in added_cameras:
-                self.camera_extrinsics.append(camera2camerafront)
                 added_cameras.append(frame['camera_id'] )
-            self.ref_camera2world_all.append(camerafront2world)
+            self.ref_camera2world_all.append(camera2world)
             
             self.cameras_idx_all.append(frame['camera_id'])
             self.cameras_K_all.append(intrinsic.astype(np.float32))
@@ -114,20 +113,24 @@ class NerfStudio(NuscDataset):
 
             if 'camera_height' in frame:
                 self.camera_heights.append(frame['camera_height'])
+                self.camerafront2world.append(camera2world)
 
         # 6. estimate flat plane
         self.file_check()
         # self.label_valid_check()
 
-        self.ref_camera2world_all = np.array(self.ref_camera2world_all)
-        print("before plane estimation, z std = ", self.ref_camera2world_all[:, 2, 3].std())
+        self.camerafront2world = np.array(self.camerafront2world)
+        print("before plane estimation, z std = ", self.camerafront2world[:, 2, 3].std())
         #front camera height
         camera_height = np.array(self.camera_heights).mean()
 
-        transform_normal2origin = robust_estimate_flatplane(self.ref_camera2world_all[:, :3, 3]).astype(np.float32)
+        transform_normal2origin = robust_estimate_flatplane(self.camerafront2world[:, :3, 3]).astype(np.float32)
         transform_normal2origin[2, 3] += camera_height
+
         self.ref_camera2world_all = transform_normal2origin[None] @ np.array(self.ref_camera2world_all)
-        print("after plane estimation, z std = ", self.ref_camera2world_all[:, 2, 3].std())
+
+        self.camerafront2world = transform_normal2origin[None] @ np.array(self.camerafront2world)
+        print("after plane estimation, z std = ", self.camerafront2world[:, 2, 3].std())
 
         # 7. filter poses in bev range
         all_camera_xy = np.asarray(self.ref_camera2world_all)[:, :2, 3]
@@ -139,6 +142,52 @@ class NerfStudio(NuscDataset):
         self.filter_by_index(available_idx)
         print(f"after poses filtering, pose num = {available_mask.sum()}")
         return
+    def __getitem__(self, idx):
+        sample = dict()
+        sample["idx"] = idx
+        sample["camera_idx"] = self.cameras_idx[idx]
+
+        # read image
+        image_path = self.image_filenames[idx]
+        sample["image_path"] = image_path
+        input_image = cv2.imread(join(self.base_dir, image_path))
+        camera_name = image_path.split("/")[-2]
+        crop_cy = int(self.resized_image_size[1] / 2)
+        K = self.cameras_K[idx]
+        origin_image_size = input_image.shape
+        resized_image = cv2.resize(input_image, dsize=self.resized_image_size, interpolation=cv2.INTER_LINEAR)
+        resized_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
+        resized_image = resized_image[crop_cy:, :, :]  # crop the sky
+        sample["image"] = (np.asarray(resized_image)/255.0).astype(np.float32)
+
+        # read label
+        label_path = join(self.image_dir, self.label_filenames[idx])
+        label = cv2.imread(label_path, cv2.IMREAD_UNCHANGED)
+        resized_label = cv2.resize(label, dsize=self.resized_image_size, interpolation=cv2.INTER_NEAREST)
+        mask, label = self.label2mask(resized_label)
+        if camera_name == "CAM_BACK":
+            h = mask.shape[0]
+            mask[int(0.83 * h):, :] = 0
+        label = self.remap_semantic(label).astype(np.long)
+
+        mask = mask[crop_cy:, :]  # crop the sky
+        label = label[crop_cy:, :]
+        sample["static_mask"] = mask
+        sample["static_label"] = label
+
+        cv_camera2world = self.ref_camera2world[idx]
+        camera2world = self.world2bev @ cv_camera2world
+        sample["world2camera"] = np.linalg.inv(camera2world)
+        resized_K = deepcopy(K)
+        width_scale = self.resized_image_size[0]/origin_image_size[1]
+        height_scale = self.resized_image_size[1]/origin_image_size[0]
+        resized_K[0, :] *= width_scale
+        resized_K[1, :] *= height_scale
+        resized_K[1, 2] -= crop_cy
+        sample["camera_K"] = resized_K
+        sample["image_shape"] = np.asarray(sample["image"].shape)[:2]
+        sample = self.opencv_camera2pytorch3d_(sample)
+        return sample
     
     def run(self):
         return 
