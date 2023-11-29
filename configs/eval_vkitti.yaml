@@ -1,0 +1,74 @@
+wandb:
+  name: "jianzhirong"
+  dir: "/home/levin/workspace/nerf/RoMe/outputs/"
+  entity: "jianzhirong"
+  tags: []
+  project: "Rome"
+
+# when on cluster, no wandb logs
+cluster: False
+replace_name: False
+
+# 05
+model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231128_152257-kklo0i7b/files/grid_baseline.pt"
+pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231128_152257-kklo0i7b/files/pose_baseline.pt"
+
+# BEV size
+bev_x_length: 100
+bev_y_length: 100
+bev_resolution: 0.1  # meters
+bev_x_pixel: 1000
+bev_y_pixel: 1000
+cut_range: 50
+
+# Training Parameters
+waypoint_radius: 120  # meters
+batch_size: 1
+pos_enc: 5
+lr: 
+  vertices_rgb: 0.1
+  vertices_label: 0.1
+  vertices_z: 0.001
+  rotations: 0.01
+  translations: 0.01
+
+lr_milestones: [1, 4]
+lr_gamma: 0.1
+seg_loss_weight: 1
+normal_loss_weight: 0
+laplacian_loss_weight: 10
+rand_seed: 17
+epochs: 1
+
+# Performance Parameters
+num_workers: 2
+
+
+dataset: "NerfStudio"
+version: "mini" 
+base_dir: "/media/levin/DATA/zf/workspace/data/vkitti/Scene06/clone/frames/"
+image_dir: "/media/levin/DATA/zf/workspace/data/vkitti/Scene06/clone/frames/"
+
+clip_list:
+- "scene-0655"
+
+center_point:
+  x: 0.0
+  y: 0.0
+
+# minimum distance between frame to sample the dataset
+min_distance: 0.2
+
+# resized image size
+image_width: 1242
+image_height: 375
+
+camera_names:
+  # - "CAM_FRONT"
+  # - "CAM_FRONT_LEFT"
+  # - "CAM_FRONT_RIGHT"
+  # - "CAM_BACK"
+  # - "CAM_BACK_LEFT"
+  # - "CAM_BACK_RIGHT"
+  - "Camera_1"
+  - "Camera_0"

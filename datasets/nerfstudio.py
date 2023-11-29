@@ -65,7 +65,6 @@ class NerfStudio(NuscDataset):
         self.camera_heights = []
         self.camerafront2world = []
 
-        added_cameras = []
         for idx,frame in enumerate(meta["frames"]):
             if not frame['scene_name'] in clip_list:
                 continue
@@ -100,11 +99,9 @@ class NerfStudio(NuscDataset):
 
             camera2world = glcamera2world @ get_Tgl2cv(inv=True).astype(np.float32)
 
-            if not frame['camera_id'] in added_cameras:
-                added_cameras.append(frame['camera_id'] )
             self.ref_camera2world_all.append(camera2world)
             
-            self.cameras_idx_all.append(frame['camera_id'])
+            self.cameras_idx_all.append(self.cameraname2id(frame['camera_name']))
             self.cameras_K_all.append(intrinsic.astype(np.float32))
 
             self.label_filenames_all.append(label_filepath.split(self.image_dir)[-1])
@@ -142,6 +139,14 @@ class NerfStudio(NuscDataset):
         self.filter_by_index(available_idx)
         print(f"after poses filtering, pose num = {available_mask.sum()}")
         return
+    def cameraname2id(self, cam_name):
+        if not hasattr(self, 'camera_dict'):
+            self.camera_dict = {}
+            self.cur_camera_id = 0
+        if not cam_name in self.camera_dict:
+            self.camera_dict[cam_name] = self.cur_camera_id
+            self.cur_camera_id += 1
+        return self.camera_dict[cam_name]
     def __getitem__(self, idx):
         sample = dict()
         sample["idx"] = idx

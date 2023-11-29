@@ -32,6 +32,22 @@
             }
         },
         {
+            "name": "train_vkitti",
+            "type": "python",
+            "request": "launch",
+            "program": "scripts/train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--config",
+                "configs/vkitti_nerf.yaml"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "train_nuscene",
             "type": "python",
             "request": "launch",
@@ -47,6 +63,22 @@
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
+        {
+            "name": "eval_vkitti",
+            "type": "python",
+            "request": "launch",
+            "program": "scripts/eval.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--config",
+                "configs/eval_vkitti.yaml"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
         {
             "name": "eval_nerf",
             "type": "python",

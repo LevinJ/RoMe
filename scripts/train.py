@@ -167,6 +167,11 @@ def train(configs):
                                     num_workers=configs["num_workers"],
                                     shuffle=True,
                                     drop_last=True)
+            # res = dataset[0]
+            # import matplotlib.pyplot as plt
+            # plt.imshow(res['image'])
+            # plt.imshow(res['static_label'])
+
 
             for sample in dataloader:
                 for key, ipt in sample.items():
