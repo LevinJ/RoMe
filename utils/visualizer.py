@@ -1,15 +1,13 @@
-import numpy as np
 import cv2
-import torch
-from torch import nn
-from pytorch3d.renderer.cameras import OrthographicCameras
-from pytorch3d.renderer import (
-    RasterizationSettings,
-    MeshRasterizer,
-)
-from pytorch3d.io import save_obj
-from utils.renderer import SimpleShader
+import numpy as np
 import pymeshlab
+import torch
+from pytorch3d.io import save_obj
+from pytorch3d.renderer import MeshRasterizer, RasterizationSettings
+from pytorch3d.renderer.cameras import OrthographicCameras
+from torch import nn
+
+from utils.renderer import SimpleShader
 
 
 def mesh2height(mesh, bev_size_pixel):
@@ -121,7 +119,7 @@ class Visualizer(nn.Module):
         ], dtype=np.float32))[None]
         cx = self.configs["bev_x_length"] / 2
         cy = self.configs["bev_y_length"] / 2
-        translation = torch.from_numpy(np.asarray([-cx, -cy, 1], dtype=np.float32))[None]
+        translation = torch.from_numpy(np.asarray([-cx, -cy, 10], dtype=np.float32))[None]
         image_size_tensor = torch.from_numpy(np.asarray(image_size, dtype=np.float32))[None]
         focal_length = torch.from_numpy(np.asarray([1/cx, 1/cy], dtype=np.float32))[None]
         camera = OrthographicCameras(

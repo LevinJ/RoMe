@@ -18,6 +18,7 @@ from models.loss import CELossWithMask, L1MaskedLoss
 from models.pose_model import ExtrinsicModel
 from utils.geometry import fps_by_distance
 from utils.image import render_semantic
+from utils.monitorutil import MonitorUtil
 from utils.renderer import Renderer
 from utils.visualizer import (
     Visualizer,
@@ -145,6 +146,7 @@ def train(configs):
         waypoints = fps_by_distance(pose_xy, min_distance=radius*2, return_idx=False)
         print(f"epoch-{epoch}: get {waypoints.shape[0]} waypoints")
         loss_dict = dict()
+        logger.log_image("monitor_bev_depth", MonitorUtil().vis_mesh(grid, visualizer), epoch)
         if optim_dict["vertices_rgb"]:
             loss_dict["render_loss"] = 0
         if optim_dict["vertices_label"]:
@@ -307,6 +309,8 @@ def train(configs):
                 vis_bev_depth = vis_bev_depth[::-1, ::-1, :]
                 logger.log_image("vis_bev_depth", vis_bev_depth, epoch)
                 logger.log_image("vis_render_depth", vis_render_depth, epoch)
+                logger.log_image("monitor_depth",  MonitorUtil().vis_depth(depth), epoch)
+               
                 if configs["dataset"] in supervise_depth_list:
                     kernel = np.ones((10, 10), np.uint8)
                     vis_gt_depth = depth2color(gt_depth[0, :, :, 0].detach().cpu().numpy(), min=0, max=100, rescale=True)
@@ -326,6 +330,7 @@ def train(configs):
                 loss_dict["total_loss"])
             loop.set_description(description)
 
+    logger.log_image("monitor_bev_depth", MonitorUtil().vis_mesh(grid, visualizer), epoch)
     # Save .obj file
     save_cut_mesh(mesh[0], join(logger.dir, f"bev_mesh_epoch_{epoch}.obj"))
     save_cut_label_mesh(mesh[0], join(logger.dir, f"bev_label_mesh_epoch_{epoch}.obj"), dataset.filted_color_map)

@@ -1,9 +1,10 @@
 import numpy as np
 import torch
-from torch import nn
-from utils.geometry import createHiveFlatMesh, cutHiveMeshWithPoses
-from pytorch3d.structures import Meshes
 from pytorch3d.renderer import TexturesVertex
+from pytorch3d.structures import Meshes
+from torch import nn
+
+from utils.geometry import createHiveFlatMesh, cutHiveMeshWithPoses
 
 
 def clean_nan(grad):
@@ -204,6 +205,7 @@ class SquareFlatGridRGBLabel(SquareFlatGridBase):
 
 class SquareFlatGridBaseZ(nn.Module):
     def __init__(self, bev_x_length, bev_y_length, pose_xy, resolution, num_encoding=2, cut_range=30):
+        self.use_mlp = True
         super().__init__()
         self.bev_x_length = bev_x_length
         self.bev_y_length = bev_y_length
@@ -223,6 +225,7 @@ class SquareFlatGridBaseZ(nn.Module):
         norm_xy = torch.cat([norm_x[:, None], norm_y[:, None]], dim=1)
         self.register_buffer('norm_xy', norm_xy)
         self.register_buffer('vertices_xy', vertices[:, :2])
+        return
 
     def get_activation_idx(self, center_xy, radius):
         distance = np.linalg.norm(self.vertices_xy.detach().cpu().numpy() - center_xy, ord=np.inf, axis=1)
@@ -230,14 +233,19 @@ class SquareFlatGridBaseZ(nn.Module):
         return activation_idx
 
     def init_vertices_z(self):
-        with torch.no_grad():
-            self.vertices_z = torch.zeros((self.norm_xy.shape[0], 1), device=self.norm_xy.device)
-            for i in range(0, self.norm_xy.shape[0], 10000):
-                activation_idx = torch.arange(i, min(i+10000, self.norm_xy.shape[0]))
-                activation_idx = activation_idx.to(self.norm_xy.device)
-                activation_norm_xy = self.norm_xy[activation_idx]
-                activation_vertices_z = self.mlp(activation_norm_xy)
-                self.vertices_z[activation_idx] = activation_vertices_z
+        if self.use_mlp :
+            with torch.no_grad():
+                self.vertices_z = torch.zeros((self.norm_xy.shape[0], 1), device=self.norm_xy.device)
+                for i in range(0, self.norm_xy.shape[0], 10000):
+                    activation_idx = torch.arange(i, min(i+10000, self.norm_xy.shape[0]))
+                    activation_idx = activation_idx.to(self.norm_xy.device)
+                    activation_norm_xy = self.norm_xy[activation_idx]
+                    activation_vertices_z = self.mlp(activation_norm_xy)
+                    self.vertices_z[activation_idx] = activation_vertices_z
+        else:
+            self.vertices_z = nn.Parameter(torch.full((self.norm_xy.shape[0], 1), 0.0, dtype=torch.float32, device=self.norm_xy.device))
+        return
+        
 
 
 class SquareFlatGridRGBZ(SquareFlatGridBaseZ):
@@ -304,14 +312,19 @@ class SquareFlatGridRGBLabelZ(SquareFlatGridBaseZ):
         if activated_idx is None:
             vertices_z = self.vertices_z
         else:
-            activtated_norm_xy = self.norm_xy[activated_idx]
-            activated_vertices_z = self.mlp(activtated_norm_xy)
+            if self.use_mlp :
+                activtated_norm_xy = self.norm_xy[activated_idx]
+                activated_vertices_z = self.mlp(activtated_norm_xy)
+            else:
+                activated_vertices_z = self.vertices_z[activated_idx]
+
             if activated_vertices_z.requires_grad:
                 activated_vertices_z.register_hook(clean_nan)
             with torch.no_grad():
                 self.vertices_z[activated_idx] = activated_vertices_z
                 vertices_z = self.vertices_z.detach()
             vertices_z[activated_idx] = activated_vertices_z
+
         vertices = torch.cat((self.vertices_xy, vertices_z), dim=1)
         self.texture = TexturesVertex(verts_features=features)
         self.mesh = Meshes(verts=[vertices], faces=[self.faces], textures=self.texture)

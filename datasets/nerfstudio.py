@@ -120,6 +120,7 @@ class NerfStudio(NuscDataset):
         print("before plane estimation, z std = ", self.camerafront2world[:, 2, 3].std())
         #front camera height
         camera_height = np.array(self.camera_heights).mean()
+        # camera_height =  1.9
 
         transform_normal2origin = robust_estimate_flatplane(self.camerafront2world[:, :3, 3]).astype(np.float32)
         transform_normal2origin[2, 3] += camera_height

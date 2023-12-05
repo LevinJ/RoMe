@@ -10,7 +10,8 @@ class WandbLogger:
             resume="allow",
             entity=configs["wandb"]["entity"],
             tags=configs["wandb"]["tags"],
-            config=configs
+            config=configs,
+            # mode='disabled'
         )
 
     @property
