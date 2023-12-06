@@ -12,8 +12,10 @@ import torch
 
 
 class MonitorUtil(object):
-    def __init__(self):
+    def __init__(self, show_img = False, use_bev_height = True):
         self.depth_range = ""
+        self.show_img = show_img
+        self.use_bev_height = use_bev_height
         return
     def vis_bev_depth(self, depth):
         depth = depth.detach().cpu().numpy().copy().squeeze()
@@ -34,11 +36,14 @@ class MonitorUtil(object):
         return self.vis_bev_depth(bev_depth)
 
     def get_heapmap(self, depth, bev_depth = True):
-        plt.switch_backend('agg')
+        if not self.show_img:
+            plt.switch_backend('agg')
         fig = plt.figure()
         mask = depth == -1
-        # if bev_depth:
-        #     depth = -depth + 1
+
+        if self.use_bev_height:
+            depth = -depth + 10 
+
         depth[mask] = np.nan
         if self.depth_range is not None:
             plt.title(self.depth_range)
@@ -50,9 +55,11 @@ class MonitorUtil(object):
             # print(f"bev depth range, min-max-mean: {depth[~mask].min():.3f}---{depth[~mask].max():.3f}---{depth[~mask].mean():.3f}")
             output_name = 'outputs/bev_depth.png'
         plt.savefig(output_name)
-        img = self.get_imagefrom_fig(fig)
-        plt.close()
-        return img
+        if not self.show_img:
+            img = self.get_imagefrom_fig(fig)
+            plt.close()
+            return img
+        return
         
     def get_imagefrom_fig(self, fig):
         fig.canvas.draw()
