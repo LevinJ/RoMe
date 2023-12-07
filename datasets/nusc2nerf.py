@@ -165,13 +165,14 @@ class App(object):
         height_id = 0
         for idx, img in enumerate(self.image_filenames_all):
             frame = {}
+            frame['frame_id'] = idx
             frame['file_path'] = img
             frame['label_path'] = self.label_filenames_all[idx]
             frame['transform_matrix'] = self.ref_camera2world_all[idx].tolist()
-            frame['camera_id'] = self.cameras_idx_all[idx]
+            # frame['camera_id'] = self.cameras_idx_all[idx]
             frame['camera_name'] = self.cameras_name_all[idx]
             frame['scene_name'] = self.scene_name_all[idx]
-            frame['camera2frontcamera'] =  self.camera2frontcamera [idx].tolist()
+            # frame['camera2frontcamera'] =  self.camera2frontcamera [idx].tolist()
             if frame['camera_name'] == "CAM_FRONT":
                 frame['camera_height'] = self.camera_height[height_id]
                 height_id += 1

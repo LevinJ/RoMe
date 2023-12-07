@@ -65,6 +65,7 @@ class NerfStudio(NuscDataset):
         self.camera_heights = []
         self.camerafront2world = []
 
+        meta["frames"] = sorted(meta["frames"], key=lambda d: d['frame_id']) 
         for idx,frame in enumerate(meta["frames"]):
             if not frame['scene_name'] in clip_list:
                 continue
@@ -183,6 +184,7 @@ class NerfStudio(NuscDataset):
 
         cv_camera2world = self.ref_camera2world[idx]
         camera2world = self.world2bev @ cv_camera2world
+        sample["camera2world"]  = camera2world
         sample["world2camera"] = np.linalg.inv(camera2world)
         resized_K = deepcopy(K)
         width_scale = self.resized_image_size[0]/origin_image_size[1]
