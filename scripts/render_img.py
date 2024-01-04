@@ -178,8 +178,8 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
 
 
 def get_configs():
-    args_config = '/home/levin/workspace/nerf/RoMe/configs/vkitti_nerf.yaml'
-    model_dir = "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240104_102251-f4xot7ip/files"
+    args_config = '/home/levin/workspace/nerf/RoMe/configs/nerf_road.yaml'
+    model_dir = "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240104_145112-jybb47oi/files"
     with open(args_config) as file:
         configs = yaml.safe_load(file)
     configs["model_path"] = f"{model_dir}/grid_baseline.pt"

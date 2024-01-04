@@ -48,6 +48,22 @@
             }
         },
         {
+            "name": "train_nerf_road",
+            "type": "python",
+            "request": "launch",
+            "program": "scripts/train.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--config",
+                "configs/nerf_road.yaml"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "train_nuscene",
             "type": "python",
             "request": "launch",
@@ -80,7 +96,25 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
-        }
+        },
+        {
+            "name": "eval_nerf_road",
+            "type": "python",
+            "request": "launch",
+            "program": "scripts/eval.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--config",
+                "configs/nerf_road.yaml",
+                "--model_dir",
+                "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240104_145112-jybb47oi/files"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
         {
             "name": "eval_nerf",
             "type": "python",
@@ -96,7 +130,7 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
-        }
+        },
         {
             "name": "eval",
             "type": "python",
