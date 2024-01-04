@@ -163,9 +163,20 @@ def get_configs():
         '--config',
         default="configs/local_carla.yaml",
         help='config yaml path')
+    parser.add_argument(
+        '--model_dir',
+        default="",
+        help='model dir, non emtpy for nerf studio format data')
     args = parser.parse_args()
+    
     with open(args.config) as file:
         configs = yaml.safe_load(file)
+
+    if args.model_dir != "":
+        configs["model_path"] = f"{args.model_dir}/grid_baseline.pt"
+        configs["pose_path"] = f"{args.model_dir}/pose_baseline.pt"
+        configs["batch_size"] = 1
+        configs["num_workers"] = 2
     return configs
 
 

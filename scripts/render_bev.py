@@ -22,9 +22,14 @@ from utils.visualizer import Visualizer
 
 
 def get_configs():
-    args_config = '/home/levin/workspace/nerf/RoMe/configs/nusc_eval.yaml'
+    args_config = '/home/levin/workspace/nerf/RoMe/configs/vkitti_nerf.yaml'
+    model_dir = "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240104_102251-f4xot7ip/files"
     with open(args_config) as file:
         configs = yaml.safe_load(file)
+    configs["model_path"] = f"{model_dir}/grid_baseline.pt"
+    configs["pose_path"] = f"{model_dir}/pose_baseline.pt"
+    configs["batch_size"] = 1
+    configs["num_workers"] = 2
     return configs
 class App(object):
     def __init__(self):

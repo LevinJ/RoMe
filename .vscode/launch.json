@@ -73,7 +73,9 @@
             "cwd": "${workspaceFolder}",
             "args": [
                 "--config",
-                "configs/eval_vkitti.yaml"
+                "configs/vkitti_nerf.yaml",
+                "--model_dir",
+                "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240104_102251-f4xot7ip/files"
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"

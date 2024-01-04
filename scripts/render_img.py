@@ -178,9 +178,14 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
 
 
 def get_configs():
-    args_config = '/home/levin/workspace/nerf/RoMe/configs/nusc_eval_nerf.yaml'
+    args_config = '/home/levin/workspace/nerf/RoMe/configs/vkitti_nerf.yaml'
+    model_dir = "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240104_102251-f4xot7ip/files"
     with open(args_config) as file:
         configs = yaml.safe_load(file)
+    configs["model_path"] = f"{model_dir}/grid_baseline.pt"
+    configs["pose_path"] = f"{model_dir}/pose_baseline.pt"
+    configs["batch_size"] = 1
+    configs["num_workers"] = 2
     return configs
 
 class App(object):
@@ -221,17 +226,17 @@ class App(object):
                 sample = dataset[0]
                 print(f"sample image {sample['image_path']}")
                 #adjust sample values
-                t1, t2, t3 = 1.8998901e+01, 9.8098389e+01, 1.4919682e+00
-                # t1, t2, t3 = 1.95, 9.8098389e+01, 1.4919682e+00
-                sample["camera2world"]  = np.array([[ 3.3148620e-02,  6.8456652e-03,  9.9942696e-01,  t1],
-                                                    [-9.9930471e-01, -1.6848126e-02,  3.3259965e-02,  t2],
-                                                    [ 1.7066160e-02, -9.9983466e-01,  6.2824134e-03,  t3],
-                                                    [ 0.0000000e+00,  0.0000000e+00,  0.0000000e+00,  1.0000000e+00]],
-                                                    dtype=np.float32)
-                sample["world2camera"] = np.linalg.inv(sample["camera2world"] )
-                sample = dataset.opencv_camera2pytorch3d_(sample)
-                Twc = PoseInfo().construct_fromT(sample["camera2world"] )
-                print(f"camera2world= {Twc.get_short_desc()}")
+                # t1, t2, t3 = 1.8998901e+01, 9.8098389e+01, 1.4919682e+00
+                # # t1, t2, t3 = 1.95, 9.8098389e+01, 1.4919682e+00
+                # sample["camera2world"]  = np.array([[ 3.3148620e-02,  6.8456652e-03,  9.9942696e-01,  t1],
+                #                                     [-9.9930471e-01, -1.6848126e-02,  3.3259965e-02,  t2],
+                #                                     [ 1.7066160e-02, -9.9983466e-01,  6.2824134e-03,  t3],
+                #                                     [ 0.0000000e+00,  0.0000000e+00,  0.0000000e+00,  1.0000000e+00]],
+                #                                     dtype=np.float32)
+                # sample["world2camera"] = np.linalg.inv(sample["camera2world"] )
+                # sample = dataset.opencv_camera2pytorch3d_(sample)
+                # Twc = PoseInfo().construct_fromT(sample["camera2world"] )
+                # print(f"camera2world= {Twc.get_short_desc()}")
 
                 for key, ipt in sample.items():
                     if key == "image_path":

@@ -10,8 +10,8 @@ cluster: False
 replace_name: False
 
 # 05
-model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231128_152257-kklo0i7b/files/grid_baseline.pt"
-pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231128_152257-kklo0i7b/files/pose_baseline.pt"
+model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240104_102251-f4xot7ip/files/grid_baseline.pt"
+pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240104_102251-f4xot7ip/files/pose_baseline.pt"
 
 # BEV size
 bev_x_length: 100
@@ -46,11 +46,11 @@ num_workers: 2
 
 dataset: "NerfStudio"
 version: "mini" 
-base_dir: "/media/levin/DATA/zf/workspace/data/vkitti/Scene06/clone/frames/"
-image_dir: "/media/levin/DATA/zf/workspace/data/vkitti/Scene06/clone/frames/"
+trip_config: "/media/levin/DATA/zf/nerf/trip_configs/vkitti_trips.config"
+# image_dir: "/media/levin/DATA/zf/workspace/data/vkitti/Scene06/clone/frames/"
 
-clip_list:
-- "scene-0655"
+# clip_list:
+# - "scene-0655"
 
 center_point:
   x: 0.0
@@ -63,12 +63,12 @@ min_distance: 0.2
 image_width: 1242
 image_height: 375
 
-camera_names:
-  # - "CAM_FRONT"
-  # - "CAM_FRONT_LEFT"
-  # - "CAM_FRONT_RIGHT"
-  # - "CAM_BACK"
-  # - "CAM_BACK_LEFT"
-  # - "CAM_BACK_RIGHT"
-  - "Camera_1"
-  - "Camera_0"
+# camera_names:
+#   # - "CAM_FRONT"
+#   # - "CAM_FRONT_LEFT"
+#   # - "CAM_FRONT_RIGHT"
+#   # - "CAM_BACK"
+#   # - "CAM_BACK_LEFT"
+#   # - "CAM_BACK_RIGHT"
+#   - "Camera_1"
+#   - "Camera_0"

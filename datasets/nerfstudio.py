@@ -7,8 +7,8 @@
 
 """
 import json
+import sys
 from copy import deepcopy
-from os.path import join
 from pathlib import Path
 
 import cv2
@@ -18,6 +18,9 @@ from datasets.base import BaseDataset
 from datasets.nusc import NuscDataset
 from utils.plane_fit import robust_estimate_flatplane
 from utils.pose_util import get_Tgl2cv
+
+sys.path.append('/home/levin/workspace/nerf/mars/nerf_slam/scripts/data_preparation')
+from gen_mullti_trip_config import MultiTripconfig
 
 
 def load_from_json(filename: Path):
@@ -34,10 +37,9 @@ class NerfStudio(NuscDataset):
         BaseDataset.__init__(self)
 
         self.resized_image_size = (configs["image_width"], configs["image_height"])
-        self.base_dir = configs["base_dir"]
-        self.image_dir = configs["image_dir"]
-        clip_list = configs["clip_list"]
-        camera_names = configs["camera_names"]
+        self.trip_config = configs["trip_config"]
+        # clip_list = configs["clip_list"]
+        # camera_names = configs["camera_names"]
         x_offset = -configs["center_point"]["x"] + configs["bev_x_length"]/2
         y_offset = -configs["center_point"]["y"] + configs["bev_y_length"]/2
         self.world2bev = np.asarray([
@@ -48,7 +50,8 @@ class NerfStudio(NuscDataset):
         ], dtype=np.float32)
         self.min_distance = configs["min_distance"]
 
-        meta = load_from_json(Path(configs["base_dir"])/ "transforms.json")
+        meta = MultiTripconfig().load_trip_config(
+            self.trip_config).get_transform_dict()
         fx_fixed = "fl_x" in meta
         fy_fixed = "fl_y" in meta
         cx_fixed = "cx" in meta
@@ -67,14 +70,9 @@ class NerfStudio(NuscDataset):
 
         meta["frames"] = sorted(meta["frames"], key=lambda d: d['frame_id']) 
         for idx,frame in enumerate(meta["frames"]):
-            if not frame['scene_name'] in clip_list:
-                continue
-            if not frame['camera_name'] in camera_names:
-                continue
             
             filepath = frame["file_path"]
             label_filepath = frame["label_path"]
-            #label_fname = Path(self.image_dir/label_filepath)
 
             if not fx_fixed:
                 assert "fl_x" in frame, "fx not specified in frame"
@@ -105,8 +103,8 @@ class NerfStudio(NuscDataset):
             self.cameras_idx_all.append(self.cameraname2id(frame['camera_name']))
             self.cameras_K_all.append(intrinsic.astype(np.float32))
 
-            self.label_filenames_all.append(label_filepath.split(self.image_dir)[-1])
-            self.image_filenames_all.append(filepath.split(self.base_dir)[-1])
+            self.label_filenames_all.append(label_filepath)
+            self.image_filenames_all.append(filepath)
 
 
             if 'camera_height' in frame:
@@ -114,7 +112,8 @@ class NerfStudio(NuscDataset):
                 self.camerafront2world.append(camera2world)
 
         # 6. estimate flat plane
-        self.file_check()
+        #skip file existence check
+        # self.file_check()
         # self.label_valid_check()
 
         self.camerafront2world = np.array(self.camerafront2world)
@@ -157,7 +156,7 @@ class NerfStudio(NuscDataset):
         # read image
         image_path = self.image_filenames[idx]
         sample["image_path"] = image_path
-        input_image = cv2.imread(join(self.base_dir, image_path))
+        input_image = cv2.imread(image_path)
         camera_name = image_path.split("/")[-2]
         crop_cy = int(self.resized_image_size[1] / 2)
         K = self.cameras_K[idx]
@@ -168,7 +167,7 @@ class NerfStudio(NuscDataset):
         sample["image"] = (np.asarray(resized_image)/255.0).astype(np.float32)
 
         # read label
-        label_path = join(self.image_dir, self.label_filenames[idx])
+        label_path = self.label_filenames[idx]
         label = cv2.imread(label_path, cv2.IMREAD_UNCHANGED)
         resized_label = cv2.resize(label, dsize=self.resized_image_size, interpolation=cv2.INTER_NEAREST)
         mask, label = self.label2mask(resized_label)
