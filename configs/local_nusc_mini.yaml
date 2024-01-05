@@ -10,23 +10,23 @@ cluster: False
 replace_name: False
 
 # BEV size
-bev_x_length: 100
-bev_y_length: 100
-bev_resolution: 0.1  # meters
-bev_x_pixel: 1000
-bev_y_pixel: 1000
+bev_x_length: 30
+bev_y_length: 30
+bev_resolution: 0.02  # meters
+bev_x_pixel: 1500
+bev_y_pixel: 1500
 cut_range: 8
 
 # Training Parameters
 waypoint_radius: 120  # meters
-batch_size: 4
+batch_size: 1
 pos_enc: 5
 lr: 
   vertices_rgb: 0.1
   vertices_label: 0.1
   vertices_z: 0.001
-  rotations: 0.01
-  translations: 0.01
+  rotations: 0.0
+  translations: 0.0
 
 extrinsic:  # extrinsic optimization range
   rotation_deg: 0.5

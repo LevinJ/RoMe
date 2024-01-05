@@ -101,11 +101,15 @@ class NuscDataset(BaseDataset):
 
                             # 5. camera index
                             self.cameras_idx_all.append(camera_idx)
+
                         # not key frames
                         if samp["next"] != "":
                             samp = self.nusc.get('sample_data', samp["next"])
                         else:
                             break
+                        break
+                    
+                break
 
         # 6. estimate flat plane
         self.file_check()
