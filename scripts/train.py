@@ -4,6 +4,7 @@ import random
 from os.path import join
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import yaml
@@ -47,6 +48,8 @@ def get_configs():
     args = parser.parse_args()
     with open(args.config) as file:
         configs = yaml.safe_load(file)
+    configs['bev_x_pixel'] = int(configs['bev_x_length'] / configs['bev_resolution'])
+    configs['bev_y_pixel'] = int(configs['bev_y_length'] / configs['bev_resolution'])
     return configs
 
 
@@ -146,7 +149,7 @@ def train(configs):
         waypoints = fps_by_distance(pose_xy, min_distance=radius*2, return_idx=False)
         print(f"epoch-{epoch}: get {waypoints.shape[0]} waypoints")
         loss_dict = dict()
-        logger.log_image("monitor_bev_depth", MonitorUtil().vis_mesh(grid, visualizer), epoch)
+        # logger.log_image("monitor_bev_depth", MonitorUtil().vis_mesh(grid, visualizer), epoch)
         if optim_dict["vertices_rgb"]:
             loss_dict["render_loss"] = 0
         if optim_dict["vertices_label"]:
@@ -257,6 +260,7 @@ def train(configs):
                         loss_dict["depth_loss"] += depth_loss.mean().detach().cpu().numpy()
 
                 loss_dict["total_loss"] += total_loss.detach().cpu().numpy()
+
         scheduler.step()
         with torch.no_grad():
             if optim_dict["vertices_z"]:
@@ -282,7 +286,7 @@ def train(configs):
                 logger.log_image("vis_loss", vis_render_loss, epoch)
                 bev_rgb = bev_features[0, :, :, :3].detach().cpu().numpy()
                 bev_rgb = np.clip(bev_rgb, 0, 1)  # see https://github.com/wandb/client/issues/2722
-                bev_rgb = bev_rgb[::-1, ::-1, :]
+                # bev_rgb = bev_rgb[::-1, ::-1, :]
                 render_image = np.clip(images[0].detach().cpu().numpy(), 0, 1)
                 logger.log_image("bev_rgb", bev_rgb, epoch)
                 logger.log_image("render_image", render_image, epoch)
@@ -290,7 +294,7 @@ def train(configs):
             if optim_dict["vertices_label"]:
                 bev_seg = np.argmax(bev_seg, axis=-1)
                 bev_seg = render_semantic(bev_seg, dataset.filted_color_map)  # RGB fomat
-                bev_seg = bev_seg[::-1, ::-1, :]
+                # bev_seg = bev_seg[::-1, ::-1, :]
                 render_seg = images_seg[0].detach().cpu().numpy()
                 render_seg = np.argmax(render_seg, axis=-1)
                 render_seg = render_semantic(render_seg, dataset.filted_color_map)  # RGB fomat
@@ -309,7 +313,7 @@ def train(configs):
                 vis_bev_depth = vis_bev_depth[::-1, ::-1, :]
                 logger.log_image("vis_bev_depth", vis_bev_depth, epoch)
                 logger.log_image("vis_render_depth", vis_render_depth, epoch)
-                logger.log_image("monitor_depth",  MonitorUtil().vis_depth(depth), epoch)
+                # logger.log_image("monitor_depth",  MonitorUtil().vis_depth(depth), epoch)
                
                 if configs["dataset"] in supervise_depth_list:
                     kernel = np.ones((10, 10), np.uint8)
@@ -330,7 +334,7 @@ def train(configs):
                 loss_dict["total_loss"])
             loop.set_description(description)
 
-    logger.log_image("monitor_bev_depth", MonitorUtil().vis_mesh(grid, visualizer), epoch)
+    # logger.log_image("monitor_bev_depth", MonitorUtil().vis_mesh(grid, visualizer), epoch)
     # Save .obj file
     save_cut_mesh(mesh[0], join(logger.dir, f"bev_mesh_epoch_{epoch}.obj"))
     save_cut_label_mesh(mesh[0], join(logger.dir, f"bev_label_mesh_epoch_{epoch}.obj"), dataset.filted_color_map)

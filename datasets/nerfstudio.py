@@ -18,6 +18,7 @@ from datasets.base import BaseDataset
 from datasets.nusc import NuscDataset
 from utils.plane_fit import robust_estimate_flatplane
 from utils.pose_util import get_Tgl2cv
+from utils.poseinfo import PoseInfo
 
 sys.path.append('/home/levin/workspace/nerf/mars/nerf_slam/scripts/data_preparation')
 from gen_mullti_trip_config import MultiTripconfig
@@ -74,6 +75,15 @@ class NerfStudio(NuscDataset):
             filepath = frame["file_path"]
             label_filepath = frame["label_path"]
 
+            # imgid = int(filepath.split("rgb_")[-1].split(".jpg")[0])
+
+            # if not imgid in [17, 18, 19]:
+            #     continue
+
+            imgid = frame['frame_id']
+            if not imgid in [0, 1, 2]:
+                continue
+
             if not fx_fixed:
                 assert "fl_x" in frame, "fx not specified in frame"
                 fx = (float(frame["fl_x"]))
@@ -110,6 +120,7 @@ class NerfStudio(NuscDataset):
             if 'camera_height' in frame:
                 self.camera_heights.append(frame['camera_height'])
                 self.camerafront2world.append(camera2world)
+            
 
         # 6. estimate flat plane
         #skip file existence check

@@ -10,23 +10,23 @@ cluster: False
 replace_name: False
 
 # BEV size
-bev_x_length: 200
-bev_y_length: 200
-bev_resolution: 0.1  # meters
+bev_x_length: 60
+bev_y_length: 60
+bev_resolution: 0.02  # meters
 bev_x_pixel: 2000
 bev_y_pixel: 2000
 cut_range: 8
 
 # Training Parameters
 waypoint_radius: 120  # meters
-batch_size: 4
+batch_size: 3
 pos_enc: 5
 lr: 
   vertices_rgb: 0.1
   vertices_label: 0.1
   vertices_z: 0.001
-  rotations: 0.01
-  translations: 0.01
+  rotations: 0.0
+  translations: 0.0
 
 extrinsic:  # extrinsic optimization range
   rotation_deg: 0.5
@@ -47,12 +47,11 @@ num_workers: 8
 
 dataset: "NerfStudio"
 version: "mini" 
-base_dir: "/media/levin/DATA/zf/workspace/data/nuscene/v1.0-mini/"
-image_dir: "/media/levin/DATA/zf/workspace/data/nuscene/nuScenes_clip/"
+trip_config: "/media/levin/DATA/zf/nerf/trip_configs/nscene_trips.config"
 eval: False
 
-clip_list:
-- "scene-0655"
+# clip_list:
+# - "scene-0655"
 
 center_point:
   x: 0.0
@@ -66,8 +65,8 @@ min_distance: 0.2
 image_width: 800
 image_height: 450
 
-camera_names:
-  - "CAM_FRONT"
+# camera_names:
+#   - "CAM_FRONT"
   # - "CAM_FRONT_LEFT"
   # - "CAM_FRONT_RIGHT"
   # - "CAM_BACK"
