@@ -19,7 +19,7 @@ from datasets.nusc import NuscDataset
 from utils.plane_fit import robust_estimate_flatplane
 from utils.pose_util import get_Tgl2cv
 
-sys.path.append('/home/levin/workspace/nerf/mars/nerf_slam/scripts/data_preparation')
+sys.path.append('/home/levin/workspace/ros_projects/src/vslam_localization/scripts/nerf/data_convert/nerfstudio')
 from gen_mullti_trip_config import MultiTripconfig
 
 
