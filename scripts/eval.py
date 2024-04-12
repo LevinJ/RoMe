@@ -49,6 +49,8 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
     image_segs = []
     gt_segs = []
     cnt = 0
+    video_name = './eval/autolabel_video.avi'
+    video = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (configs['image_width'],configs['image_height']))
     with torch.no_grad():
         waypoints = fps_by_distance(pose_xy, min_distance=radius*2, return_idx=False)
         print(f"get {waypoints.shape[0]} waypoints")
@@ -117,8 +119,16 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
 
                 vis_seg = render_semantic(images_seg_np[0], dataset.filted_color_map)[:, :, ::-1]
                 cv2.imwrite(f"./eval/eval_{cnt:05d}-vis_seg.png", vis_seg)
-                blend_image = cv2.addWeighted(gt_image, 0.5, vis_seg, 0.5, 0)
-                cv2.imwrite(f"./eval/eval_{cnt:05d}-blend.png", blend_image)
+
+
+                gt_image = sample["image2"]
+                gt_image = gt_image.detach().cpu().numpy().squeeze()
+                gt_image = (gt_image * 255).astype(np.uint8)[:, :, ::-1]
+                vis_seg  = np.concatenate([np.zeros_like(vis_seg), vis_seg], axis=0)
+                blend_image = cv2.addWeighted(gt_image, 0.8, vis_seg, 0.2, 0)
+                cv2.imwrite(f"./eval/eval_{cnt:05d}-blend.jpg", blend_image)
+                video.write(blend_image)
+
 
                 images_seg_np[images_seg_np == num_class - 1] = 255
                 images_seg_np[images_seg_np == 0] = 255
@@ -137,6 +147,7 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
                 gt_segs.append(gt_seg_np)
                 cnt += 1
 
+    video.release()
     loss_all = np.array(loss_all)
     loss_mean = np.mean(loss_all)
     psnr_mean = mse2psnr(loss_mean)
@@ -182,6 +193,7 @@ def get_configs():
 
 if __name__ == "__main__":
     configs = get_configs()
+    configs["filter_pose_by_distance"] = False
     device = torch.device("cuda:0")
 
     if configs["dataset"] == "NuscDataset":

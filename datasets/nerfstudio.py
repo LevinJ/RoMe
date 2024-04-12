@@ -13,6 +13,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from sympy import false
 
 from datasets.base import BaseDataset
 from datasets.nusc import NuscDataset
@@ -50,8 +51,11 @@ class NerfStudio(NuscDataset):
         ], dtype=np.float32)
         self.min_distance = configs["min_distance"]
 
+        filter_pose_by_distance = True
+        if 'filter_pose_by_distance' in configs:
+            filter_pose_by_distance = configs['filter_pose_by_distance']
         meta = MultiTripconfig().load_trip_config(
-            self.trip_config).get_transform_dict()
+            self.trip_config).get_transform_dict(filter_pose_by_distance)
         fx_fixed = "fl_x" in meta
         fy_fixed = "fl_y" in meta
         cx_fixed = "cx" in meta
@@ -163,6 +167,10 @@ class NerfStudio(NuscDataset):
         origin_image_size = input_image.shape
         resized_image = cv2.resize(input_image, dsize=self.resized_image_size, interpolation=cv2.INTER_LINEAR)
         resized_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
+
+        #keep original image for evaluation visualization
+        sample["image2"] = (np.asarray(resized_image).copy()/255.0).astype(np.float32)
+
         resized_image = resized_image[crop_cy:, :, :]  # crop the sky
         sample["image"] = (np.asarray(resized_image)/255.0).astype(np.float32)
 
