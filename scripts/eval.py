@@ -193,7 +193,7 @@ def get_configs():
 
 if __name__ == "__main__":
     configs = get_configs()
-    configs["filter_pose_by_distance"] = False
+    configs["filter_pose_by_distance"] = True
     device = torch.device("cuda:0")
 
     if configs["dataset"] == "NuscDataset":
