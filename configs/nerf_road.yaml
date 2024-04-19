@@ -10,11 +10,11 @@ cluster: False
 replace_name: False
 
 # BEV size
-bev_x_length: 100
-bev_y_length: 100
-bev_resolution: 0.1  # meters
-bev_x_pixel: 1000
-bev_y_pixel: 1000
+bev_x_length: 105
+bev_y_length: 105
+bev_resolution: 0.05  # meters
+bev_x_pixel: 2100
+bev_y_pixel: 2100
 cut_range: 8
 
 # Training Parameters

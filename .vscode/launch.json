@@ -109,7 +109,7 @@
                 "--config",
                 "configs/nerf_road.yaml",
                 "--model_dir",
-                "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240410_090226-0ls309yk/files"
+                "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240419_111103-ctcgca52/files"
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"

@@ -74,6 +74,8 @@ class NerfStudio(NuscDataset):
 
         meta["frames"] = sorted(meta["frames"], key=lambda d: d['frame_id']) 
         for idx,frame in enumerate(meta["frames"]):
+            # if idx >=150:
+            #     continue
             
             filepath = frame["file_path"]
             label_filepath = frame["label_path"]
