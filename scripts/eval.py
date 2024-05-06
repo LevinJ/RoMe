@@ -1,6 +1,8 @@
 import argparse
+import os
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import yaml
@@ -15,6 +17,37 @@ from utils.metrics import eval_metrics
 from utils.renderer import Renderer
 
 
+class EvalVideo(object):
+    def __init__(self, back_only = False) -> None:
+        self.cam_img_dict = {}
+        video_name = './eval/autolabel_video.avi'
+        self.video = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (1920 * 3,1080))
+        self.back_only = back_only
+        return
+    def add_img(self, image_path, blend_img):
+        cam_name = os.path.dirname(image_path[0]).split('/')[-1]
+        self.cam_img_dict[cam_name] = blend_img
+        if "sur_back" in cam_name:
+            self.write2video()
+        return
+    def write2video(self):
+        if(len(self.cam_img_dict) != 3):
+            return
+        veh = "es81_"
+        
+        blend_image = self.cam_img_dict[veh + "sur_back"]
+        if not self.back_only:
+            blend_images = []
+            for cam_name in ['sur_right_back', 'sur_back', 'sur_left_back']:
+                blend_images.append(self.cam_img_dict[veh + cam_name])
+            blend_image = np.concatenate(blend_images, axis = 1)
+
+        
+        self.video.write(blend_image)
+        return
+    def release(self):
+        self.video.release()
+        return
 def mse2psnr(mse):
     """
     :param mse: scalar
@@ -49,8 +82,7 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
     image_segs = []
     gt_segs = []
     cnt = 0
-    video_name = './eval/autolabel_video.avi'
-    video = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (configs['image_width'],configs['image_height']))
+    eval_video = EvalVideo()
     with torch.no_grad():
         waypoints = fps_by_distance(pose_xy, min_distance=radius*2, return_idx=False)
         print(f"get {waypoints.shape[0]} waypoints")
@@ -127,7 +159,7 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
                 vis_seg  = np.concatenate([np.zeros_like(vis_seg), vis_seg], axis=0)
                 blend_image = cv2.addWeighted(gt_image, 0.8, vis_seg, 0.2, 0)
                 cv2.imwrite(f"./eval/eval_{cnt:05d}-blend.jpg", blend_image)
-                video.write(blend_image)
+                eval_video.add_img(sample["image_path"], blend_image)
 
 
                 images_seg_np[images_seg_np == num_class - 1] = 255
@@ -147,7 +179,7 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
                 gt_segs.append(gt_seg_np)
                 cnt += 1
 
-    video.release()
+    eval_video.release()
     loss_all = np.array(loss_all)
     loss_mean = np.mean(loss_all)
     psnr_mean = mse2psnr(loss_mean)
