@@ -10,8 +10,8 @@ cluster: False
 replace_name: False
 
 # 05
-model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231127_143445-huz69rvf/files/grid_baseline.pt"
-pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20231127_143445-huz69rvf/files/pose_baseline.pt"
+model_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240520_162828-up1z6ld4/files/grid_baseline.pt"
+pose_path: "/home/levin/workspace/nerf/RoMe/outputs/wandb/run-20240520_162828-up1z6ld4/files/pose_baseline.pt"
 
 # BEV size
 bev_x_length: 200
@@ -46,8 +46,9 @@ num_workers: 2
 
 dataset: "NerfStudio"
 version: "mini" 
-base_dir: "/media/levin/DATA/zf/workspace/data/nuscene/v1.0-mini/"
-image_dir: "/media/levin/DATA/zf/workspace/data/nuscene/nuScenes_clip/"
+# base_dir: "/media/levin/DATA/zf/workspace/data/nuscene/v1.0-mini/"
+# image_dir: "/media/levin/DATA/zf/workspace/data/nuscene/nuScenes_clip/"
+trip_config: "/media/levin/DATA/zf/nerf/trip_configs/nscene_trips.config"
 
 clip_list:
 - "scene-0655"
@@ -63,8 +64,8 @@ min_distance: 0.2
 image_width: 800
 image_height: 450
 
-camera_names:
-  - "CAM_FRONT"
+# camera_names:
+#   - "CAM_FRONT"
   # - "CAM_FRONT_LEFT"
   # - "CAM_FRONT_RIGHT"
   # - "CAM_BACK"

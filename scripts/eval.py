@@ -18,28 +18,46 @@ from utils.renderer import Renderer
 
 
 class EvalVideo(object):
-    def __init__(self, back_only = False) -> None:
+    def __init__(self, single_cam = False) -> None:
         self.cam_img_dict = {}
         video_name = './eval/autolabel_video.avi'
-        self.video = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (1920 * 3,1080))
-        self.back_only = back_only
+        self.single_cam = single_cam
+
+
+        # width = 1920
+        # height = 1080
+        # if not single_cam:
+        #     width = width * 3
+        # self.vi/deo = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (width,height))
+        # self.cam_names = ['es81_sur_right_back', 'es81_sur_back', 'es81_sur_left_back']
+
+        
+
+        width = 800
+        height = 450
+        if not single_cam:
+            width = width * 3
+        self.video = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (width ,height))
+        self.cam_names = ['CAM_FRONT_LEFT', 'CAM_FRONT', 'CAM_FRONT_RIGHT']
+        
+
         return
     def add_img(self, image_path, blend_img):
         cam_name = os.path.dirname(image_path[0]).split('/')[-1]
         self.cam_img_dict[cam_name] = blend_img
-        if "sur_back" in cam_name:
+        if self.cam_names[1] == cam_name:
             self.write2video()
         return
     def write2video(self):
-        if(len(self.cam_img_dict) != 3):
-            return
-        veh = "es81_"
-        
-        blend_image = self.cam_img_dict[veh + "sur_back"]
-        if not self.back_only:
+
+        blend_image = self.cam_img_dict[self.cam_names[1]]
+     
+        if not self.single_cam:
+            if(len(self.cam_img_dict) != 3):
+                return
             blend_images = []
-            for cam_name in ['sur_right_back', 'sur_back', 'sur_left_back']:
-                blend_images.append(self.cam_img_dict[veh + cam_name])
+            for cam_name in self.cam_names:
+                blend_images.append(self.cam_img_dict[cam_name])
             blend_image = np.concatenate(blend_images, axis = 1)
 
         
