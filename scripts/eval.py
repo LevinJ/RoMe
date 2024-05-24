@@ -24,21 +24,21 @@ class EvalVideo(object):
         self.single_cam = single_cam
 
 
-        # width = 1920
-        # height = 1080
-        # if not single_cam:
-        #     width = width * 3
-        # self.vi/deo = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (width,height))
-        # self.cam_names = ['es81_sur_right_back', 'es81_sur_back', 'es81_sur_left_back']
+        width = 1920
+        height = 1080
+        if not single_cam:
+            width = width * 3
+        self.video = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (width,height))
+        self.cam_names = ['es81_sur_right_back', 'es81_sur_back', 'es81_sur_left_back']
 
         
 
-        width = 800
-        height = 450
-        if not single_cam:
-            width = width * 3
-        self.video = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (width ,height))
-        self.cam_names = ['CAM_FRONT_LEFT', 'CAM_FRONT', 'CAM_FRONT_RIGHT']
+        # width = 800
+        # height = 450
+        # if not single_cam:
+        #     width = width * 3
+        # self.video = cv2.VideoWriter(video_name, cv2.VideoWriter.fourcc('M','J','P','G'), 15, (width ,height))
+        # self.cam_names = ['CAM_FRONT_LEFT', 'CAM_FRONT', 'CAM_FRONT_RIGHT']
         
 
         return
@@ -100,7 +100,9 @@ def eval(grid_model, pose_model, dataset, renderer, configs, device):
     image_segs = []
     gt_segs = []
     cnt = 0
-    eval_video = EvalVideo()
+    num_camera=np.unique(dataset.cameras_idx_all).size
+    single_cam = num_camera == 1
+    eval_video = EvalVideo(single_cam = single_cam)
     with torch.no_grad():
         waypoints = fps_by_distance(pose_xy, min_distance=radius*2, return_idx=False)
         print(f"get {waypoints.shape[0]} waypoints")
