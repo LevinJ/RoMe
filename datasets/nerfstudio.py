@@ -43,6 +43,13 @@ class NerfStudio(NuscDataset):
         # camera_names = configs["camera_names"]
         x_offset = -configs["center_point"]["x"] + configs["bev_x_length"]/2
         y_offset = -configs["center_point"]["y"] + configs["bev_y_length"]/2
+
+        self.use_input_sfm = False
+        if configs["input_sfm"] != "":
+            # bev frame and world are of the same if we use sfm as input could
+            self.use_input_sfm = True
+            x_offset = 0
+            y_offset = 0
         self.world2bev = np.asarray([
             [1, 0, 0, x_offset],
             [0, 1, 0, y_offset],
@@ -71,6 +78,8 @@ class NerfStudio(NuscDataset):
         width = []
         self.camera_heights = []
         self.camerafront2world = []
+
+       
 
         meta["frames"] = sorted(meta["frames"], key=lambda d: d['frame_id']) 
         for idx,frame in enumerate(meta["frames"]):
@@ -112,16 +121,17 @@ class NerfStudio(NuscDataset):
             self.label_filenames_all.append(label_filepath)
             self.image_filenames_all.append(filepath)
 
-
-            if 'camera_height' in frame:
-                self.camera_heights.append(frame['camera_height'])
-                self.camerafront2world.append(camera2world)
+            if not  self.use_input_sfm:
+                if 'camera_height' in frame:
+                    self.camera_heights.append(frame['camera_height'])
+                    self.camerafront2world.append(camera2world)
 
         # 6. estimate flat plane
         #skip file existence check
         # self.file_check()
         # self.label_valid_check()
-
+        if  self.use_input_sfm:
+            return
         self.camerafront2world = np.array(self.camerafront2world)
         print("before plane estimation, z std = ", self.camerafront2world[:, 2, 3].std())
         #front camera height

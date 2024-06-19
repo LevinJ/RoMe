@@ -4,7 +4,7 @@ from pytorch3d.renderer import TexturesVertex
 from pytorch3d.structures import Meshes
 from torch import nn
 
-from utils.geometry import createHiveFlatMesh, cutHiveMeshWithPoses
+from utils.geometry import createHiveFlatMesh, createPCMesh, cutHiveMeshWithPoses
 
 
 def clean_nan(grad):
@@ -204,26 +204,34 @@ class SquareFlatGridRGBLabel(SquareFlatGridBase):
 
 
 class SquareFlatGridBaseZ(nn.Module):
-    def __init__(self, bev_x_length, bev_y_length, pose_xy, resolution, num_encoding=2, cut_range=30):
-        self.use_mlp = True
+    def __init__(self, bev_x_length, bev_y_length, pose_xy, resolution, num_encoding=2, cut_range=30, configs=None):
+        self.use_mlp = False
+        self.use_input_mesh = False
         super().__init__()
-        self.bev_x_length = bev_x_length
-        self.bev_y_length = bev_y_length
-        self.resolution = resolution
-        vertices, faces, self.bev_size_pixel = createHiveFlatMesh(bev_x_length, bev_y_length, resolution)
-        print(f"Before cutting,  {vertices.shape[0]} vertices, {faces.shape[0]} faces")
-        vertices, faces, self.bev_size_pixel = cutHiveMeshWithPoses(vertices, faces, self.bev_size_pixel,
-                                                                    bev_x_length, bev_y_length, pose_xy,
-                                                                    resolution, cut_range)
-        print(f"After cutting,  {vertices.shape[0]} vertices, {faces.shape[0]} faces")
+        if configs['input_sfm'] == "":
+            self.bev_x_length = bev_x_length
+            self.bev_y_length = bev_y_length
+            self.resolution = resolution
+            vertices, faces, self.bev_size_pixel = createHiveFlatMesh(bev_x_length, bev_y_length, resolution)
+            print(f"Before cutting,  {vertices.shape[0]} vertices, {faces.shape[0]} faces")
+            vertices, faces, self.bev_size_pixel = cutHiveMeshWithPoses(vertices, faces, self.bev_size_pixel,
+                                                                        bev_x_length, bev_y_length, pose_xy,
+                                                                        resolution, cut_range)
+            print(f"After cutting,  {vertices.shape[0]} vertices, {faces.shape[0]} faces")
+            norm_x = vertices[:, 0]/self.bev_x_length * 2 - 1
+            norm_y = vertices[:, 1]/self.bev_y_length * 2 - 1
+            norm_xy = torch.cat([norm_x[:, None], norm_y[:, None]], dim=1)
+            self.register_buffer('norm_xy', norm_xy)
+            self.mlp = HeightMLP(num_encoding=num_encoding, num_width=128)
+        else:
+            vertices, faces, rgbs = createPCMesh(configs)
+            self.input_vertices_zs = vertices[:, 2]
+            self.input_rgbs = rgbs
+            self.use_input_mesh = True
+
         self.texture = None
         self.mesh = None
         self.register_buffer('faces', faces)
-        self.mlp = HeightMLP(num_encoding=num_encoding, num_width=128)
-        norm_x = vertices[:, 0]/self.bev_x_length * 2 - 1
-        norm_y = vertices[:, 1]/self.bev_y_length * 2 - 1
-        norm_xy = torch.cat([norm_x[:, None], norm_y[:, None]], dim=1)
-        self.register_buffer('norm_xy', norm_xy)
         self.register_buffer('vertices_xy', vertices[:, :2])
         return
 
@@ -243,7 +251,11 @@ class SquareFlatGridBaseZ(nn.Module):
                     activation_vertices_z = self.mlp(activation_norm_xy)
                     self.vertices_z[activation_idx] = activation_vertices_z
         else:
-            self.vertices_z = nn.Parameter(torch.full((self.norm_xy.shape[0], 1), 0.0, dtype=torch.float32, device=self.norm_xy.device))
+            if self.use_input_mesh:
+                self.input_vertices_zs = self.input_vertices_zs.to(self.faces.device)
+                self.vertices_z = nn.Parameter(self.input_vertices_zs[...,None])
+            else:
+                self.vertices_z = nn.Parameter(torch.full((self.norm_xy.shape[0], 1), 0.0, dtype=torch.float32, device=self.norm_xy.device))
         return
         
 
@@ -299,8 +311,8 @@ class SquareFlatGridLabelZ(SquareFlatGridBaseZ):
 
 
 class SquareFlatGridRGBLabelZ(SquareFlatGridBaseZ):
-    def __init__(self, bev_x_length, bev_y_length, pose_xy, resolution, num_classes, num_encoding=2, cut_range=30):
-        super().__init__(bev_x_length, bev_y_length, pose_xy, resolution, num_encoding, cut_range)
+    def __init__(self, bev_x_length, bev_y_length, pose_xy, resolution, num_classes, num_encoding=2, cut_range=30, configs=None):
+        super().__init__(bev_x_length, bev_y_length, pose_xy, resolution, num_encoding, cut_range, configs)
         num_vertices = self.vertices_xy.shape[0]
         self.vertices_rgb = nn.Parameter(torch.zeros(num_vertices, 3)[None])
         self.vertices_label = nn.Parameter(torch.zeros((1, num_vertices, num_classes), dtype=torch.float32))

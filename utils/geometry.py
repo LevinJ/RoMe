@@ -1,7 +1,19 @@
-import cv2
-import torch
-import numpy as np
+import sys
 
+import cv2
+import numpy as np
+import torch
+
+sys.path.append('/home/levin/workspace/ros_projects/src/vslam_localization/scripts')
+
+
+def createPCMesh(configs):
+    from nerf.data_convert.meshes.vis.meshfromcolmap import MeshfromColmap
+
+    input_model = "/home/levin/workspace/data/colmap/0601_5/sparse_spatial/dense/fused.ply"
+    verts, faces, rgbs = MeshfromColmap().colmap2mesh(input_model)
+    
+    return verts, faces, rgbs
 
 def createFlatMesh(x_length, y_length, resolution=0.1):
     """

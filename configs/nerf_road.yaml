@@ -10,12 +10,15 @@ cluster: False
 replace_name: False
 
 # BEV size
-bev_x_length: 105
-bev_y_length: 105
-bev_resolution: 0.05  # meters
-bev_x_pixel: 2100
-bev_y_pixel: 2100
+bev_x_length: 100
+bev_y_length: 100
+bev_resolution: 0.1  # meters
+# bev_x_pixel: 2000
+# bev_y_pixel: 2000
 cut_range: 8
+
+input_sfm: "/home/levin/workspace/data/colmap/0601_5/sparse_spatial/dense/fused.ply"
+# input_sfm: ""
 
 # Training Parameters
 waypoint_radius: 120  # meters
@@ -47,7 +50,7 @@ num_workers: 8
 
 dataset: "NerfStudio"
 version: "mini" 
-trip_config: "/media/levin/DATA/zf/nerf/trip_configs/calib_lab_1.config"
+trip_config: "/media/levin/DATA/zf/nerf/trip_configs/2024_0601_col.config"
 eval: False
 
 

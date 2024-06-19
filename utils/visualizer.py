@@ -1,3 +1,5 @@
+import sys
+
 import cv2
 import numpy as np
 import pymeshlab
@@ -8,6 +10,8 @@ from pytorch3d.renderer.cameras import OrthographicCameras
 from torch import nn
 
 from utils.renderer import SimpleShader
+
+sys.path.append('/home/levin/workspace/ros_projects/src/vslam_localization/scripts')
 
 
 def mesh2height(mesh, bev_size_pixel):
@@ -111,7 +115,7 @@ class Visualizer(nn.Module):
         self.device = device
         self.configs = configs
 
-        image_size = (self.configs["bev_x_pixel"], self.configs["bev_y_pixel"])
+        image_size = (int(self.configs['bev_x_length']/self.configs['bev_resolution']), int(self.configs['bev_y_length']/self.configs['bev_resolution']))
         rotation = torch.from_numpy(np.asarray([
             [0, 1, 0],
             [1, 0, 0],
@@ -130,6 +134,11 @@ class Visualizer(nn.Module):
             device=device
         )
 
+        if configs['input_sfm'] != "":
+            from nerf.data_convert.meshes.vis.show_mesh_cam import MeshVis
+            image_size=[1000, 1000]
+            camera = MeshVis().get_ortho_camera(image_size)
+
         raster_settings = RasterizationSettings(
             image_size=image_size,
             blur_radius=0.0,
@@ -142,6 +151,8 @@ class Visualizer(nn.Module):
             ),
             shader=SimpleShader()
         )
+        return
+
 
     def forward(self, mesh):
         image, depth = self.mesh_renderer(mesh)
