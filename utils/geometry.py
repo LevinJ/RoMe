@@ -10,7 +10,7 @@ sys.path.append('/home/levin/workspace/ros_projects/src/vslam_localization/scrip
 def createPCMesh(configs):
     from nerf.data_convert.meshes.vis.meshfromcolmap import MeshfromColmap
 
-    input_model = "/home/levin/workspace/data/colmap/0601_5/sparse_spatial/dense/fused.ply"
+    input_model = configs["input_sfm"]
     verts, faces, rgbs = MeshfromColmap().colmap2mesh(input_model)
     
     return verts, faces, rgbs

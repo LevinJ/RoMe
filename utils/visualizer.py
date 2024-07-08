@@ -136,9 +136,10 @@ class Visualizer(nn.Module):
 
         if configs['input_sfm'] != "":
             from nerf.data_convert.meshes.vis.show_mesh_cam import MeshVis
-            image_size=[1000, 1000]
-            camera = MeshVis().get_ortho_camera(image_size)
-
+            bev_length = self.configs['bev_x_length']
+            resolution = self.configs['bev_resolution']
+            camera = MeshVis().get_ortho_camera(bev_length, resolution)
+            image_size=[int(bev_length/resolution), int(bev_length/resolution)]
         raster_settings = RasterizationSettings(
             image_size=image_size,
             blur_radius=0.0,
