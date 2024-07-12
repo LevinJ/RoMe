@@ -233,6 +233,7 @@ class SquareFlatGridBaseZ(nn.Module):
         self.mesh = None
         self.register_buffer('faces', faces)
         self.register_buffer('vertices_xy', vertices[:, :2])
+        self.configs = configs
         return
 
     def get_activation_idx(self, center_xy, radius):
@@ -252,8 +253,11 @@ class SquareFlatGridBaseZ(nn.Module):
                     self.vertices_z[activation_idx] = activation_vertices_z
         else:
             if self.use_input_mesh:
+                requires_grad = True
                 self.input_vertices_zs = self.input_vertices_zs.to(self.faces.device)
-                self.vertices_z = nn.Parameter(self.input_vertices_zs[...,None])
+                if self.configs['lr']["vertices_z"] < 1e-5:
+                    requires_grad = False
+                self.vertices_z = nn.Parameter(self.input_vertices_zs[...,None], requires_grad= requires_grad)
             else:
                 self.vertices_z = nn.Parameter(torch.full((self.norm_xy.shape[0], 1), 0.0, dtype=torch.float32, device=self.norm_xy.device))
         return

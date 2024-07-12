@@ -11,7 +11,7 @@ def createPCMesh(configs):
     from nerf.data_convert.meshes.vis.meshfromcolmap import MeshfromColmap
 
     input_model = configs["input_sfm"]
-    verts, faces, rgbs = MeshfromColmap().colmap2mesh(input_model)
+    verts, faces, rgbs = MeshfromColmap().colmap2mesh(input_model, resolution = configs["bev_resolution"])
     
     return verts, faces, rgbs
 
